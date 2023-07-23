@@ -1,0 +1,32 @@
+{
+  "name": "brain",
+  "version": "1.0.0",
+  "description": "A tool for helping developers manage their knowledge resource, without overcomplicating things",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"npm run -w server dev\" \"npm run -w web dev\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gikkman/brain.git"
+  },
+  "keywords": [
+    "notes",
+    "knowledge",
+    "blog"
+  ],
+  "author": "Gikkman",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/Gikkman/brain/issues"
+  },
+  "homepage": "https://github.com/Gikkman/brain#readme",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
