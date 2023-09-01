@@ -1,0 +1,66 @@
+#! /usr/bin/env node
+// @ts-check
+const { program } = require('commander');
+const { editor } = require('@inquirer/prompts');
+
+const util = require("../util");
+
+program
+  .command("add")
+  .description("adds a new entry to your brain")
+  .argument("<title>", "title of the new entry")
+  .option("-t, --tags [tags]", "adds extra tags to the new entry (csv)")
+  .action(async (title, options) => {
+    const tags = options.tags?.split(",") ?? [];
+    const body = await editor({
+      message: `Body for entry: ${title}`,
+      postfix: ".md",
+    });
+    util.addEntry({title, body, tags})
+  })
+  .addHelpText('after', `
+Example usage:
+  $ brain add -t ts,array "How to filter an array in typescript"`
+);
+
+program
+  .command("edit")
+  .description("edit an existing entry in your brain")
+  .argument("<index>", "index of the entry to edit")
+  .action(async (index) => {
+    const entry = await util.readEntryByIndex(index);
+    if(!entry) {
+      console.error(`No entry found for index ${index}`)
+      return;
+    }
+    const newContent = await editor({
+      message: `Opening editor for entry ${index} (${entry.title})`,
+      default: entry.content,
+      postfix: ".md",
+    });
+    if(newContent !== entry.content) {
+      util.updateEntryContent(entry, newContent)
+      console.log(`Updated entry ${index} with new content`);
+    }
+    else {
+      console.log(`No content changes detected. Skipping updates to entry ${index}`)
+    }
+  })
+  .addHelpText('after', `
+Example usage:
+  $ brain edit 1`
+);
+
+program
+  .command("search")
+  .description("search the brain for entries")
+  .argument("<query...>", "search words to query your brain with")
+  .action(async (query) => {
+    console.log(query)
+  })
+  .addHelpText('after', `
+Example usage:
+  $ brain search ts array filter`
+);
+
+program.parse();

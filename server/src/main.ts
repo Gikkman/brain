@@ -1,22 +1,32 @@
-import express from "express";
 import {join} from "path";
-import * as url from "url";
 
-const app = express();
+import Fastify, { FastifyRequest } from 'fastify';
+import { getEntry, readEntry } from "./entries.js";
 
-const listener = app.listen(8080, () => {
-    const address = listener.address();
-    if(address && typeof address === "object" && "port" in address) {
-        console.log("Listening to http://localhost:" + address.port)
-    }
-})
+const fastify = Fastify({
+    logger: true
+});
 
-app.post("/api", (req,res) => {
-    const {q} = req.query;
+
+type PostApi = FastifyRequest<{Querystring: { q: string }}>;
+fastify.post("/api", (request: PostApi) => {
+    const {q} = request.query;
     if(q) console.log("Hello " + q);
     else console.log("Hello")
-    res.send("OK")
+    return "OK";
 })
 
+type GetEntry = FastifyRequest<{Params: { index: number }}>;
+fastify.get("/entry/:id", async (request: GetEntry, response) => {
+    const index = request.params.index;
+    const entry = await getEntry(index);
+    if(!entry) {
+        return response.status(404).send(`No entry found for index ${index}`);
+    }
+    const content = await readEntry(entry);
+    return content;
+});
+
 const staticPath = join(process.cwd(), "..", "web", "dist");
-app.use("/", express.static(staticPath))
+
+fastify.listen({port: 8080})

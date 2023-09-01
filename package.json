@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "A tool for helping developers manage their knowledge resource, without overcomplicating things",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "concurrently \"npm run -w server dev\" \"npm run -w web dev\""
+    "dev": "concurrently \"npm run -w server dev\" \"npm run -w web dev\"",
+    "build": "npm run build --workspaces",
+    "cli-install": "node cli-install.js"
   },
   "repository": {
     "type": "git",
@@ -28,5 +30,9 @@
   ],
   "devDependencies": {
     "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^3.0.0",
+    "commander": "^11.0.0"
   }
 }
