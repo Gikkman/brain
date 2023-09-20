@@ -1,36 +1,11 @@
 // @ts-check
 const fs = require("fs/promises");
 const path = require("path");
-
-/**
- * @typedef Entry
- * @type {object}
- * @property {string} title - Title of the entry
- * @property {number} index - Index of the entry
- * @property {string} file - File name of the entry
- * @property {string[]} tags - Tags for the entry
-*/
-
-/**
- * @typedef NewEntry
- * @type {object}
- * @property {string} title - Title of the entry
- * @property {string} body - Content of the entry
- * @property {string[]} tags - Tags for the entry
-*/
-
-/**
- * @typedef MetadataFile
- * @type {object}
- * @property {Record<number,Entry>} entries - Map of index -> entry
- * @property {number} nextIndex - Next index to assign a new entry
- * @property {number[]} new - Which indices are new additions
- * @property {number[]} updated - Which indices are most recently updated
-*/
+const { NewEntry, Entry, MetadataFile } = require('../types/types.d')
 
 module.exports = {
     /**
-     * @param data { NewEntry }
+     * @param {NewEntry} data
     */
     async addEntry(data) {
         const metadata = await readMetadataFile();
@@ -40,10 +15,13 @@ module.exports = {
         const location = entriesDir(file)
         fs.writeFile(location, data.body, { encoding: "utf-8" });
 
+        const now = Date.now();
         const entryToAdd = {
             title: data.title,
             file: file,
             tags: data.tags,
+            created: now,
+            updated: now,
             index,
         }
 
@@ -109,6 +87,7 @@ module.exports = {
             }
         }
 
+        metadata.entries[entry.index].updated = Date.now();
         writeMetadataFile(metadata);
     },
 }
@@ -136,7 +115,7 @@ async function writeMetadataFile(file) {
  * or to an item within the entries directory. This function
  * does not validate that the item in question exists or not,
  * it merely calculates the path.
- * @param item {string?}
+ * @param {string?} item
  * @returns {string}
 */
 function entriesDir(item) {
