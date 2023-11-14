@@ -8,37 +8,25 @@ module.exports = {
      * @param {NewEntry} data
     */
     async addEntry(data) {
-        const metadata = await readMetadataFile();
+        const {partition, metadata} = await readLastMetadataFile();
 
         const index = metadata.nextIndex;
-        const file = `${index}-${data.title.toUpperCase()}.md`
+        const file = `${index}-${data.title.split(" ").join("_").toUpperCase()}.md`
         const location = entriesDir(file)
         fs.writeFile(location, data.body, { encoding: "utf-8" });
 
-        const now = Date.now();
         const entryToAdd = {
             title: data.title,
             file: file,
             tags: data.tags,
-            created: now,
-            updated: now,
+            created: Date.now(),
             index,
         }
 
         metadata.nextIndex = index + 1;
         metadata.entries[index] = entryToAdd;
 
-        metadata.new.push(index);
-        while(metadata.new.length > 5) {
-            metadata.new.shift()
-        }
-
-        metadata.updated.push(index);
-        while(metadata.updated.length > 5) {
-            metadata.updated.shift()
-        }
-
-        return writeMetadataFile(metadata)
+        return writeMetadataFile(partition, metadata)
     },
 
     /**
@@ -47,8 +35,8 @@ module.exports = {
      * @returns {Promise<undefined|Entry&{content:string}>}
      */
     async readEntryByIndex(index) {
-        const metadataFile = await readMetadataFile();
-        const entry = metadataFile.entries[index];
+        const {metadata} = await readMetadataFileByEntryIndex(index);
+        const entry = metadata.entries[index];
         if(!entry) {
             return undefined;
         }
@@ -71,43 +59,48 @@ module.exports = {
     async updateEntryContent(entry, newContent) {
         const location = entriesDir(entry.file);
         fs.writeFile(location, newContent);
-        const metadata = await readMetadataFile();
-
-        if(metadata.updated.includes(entry.index)) {
-            // Move the entry last in the array, indicated it was edited last
-            const filtered = metadata.updated.filter(e => e !== entry.index)
-            filtered.push(entry.index);
-            metadata.updated = filtered;
-        }
-        else {
-            // Add the entry to the updated list, and remove the oldest
-            metadata.updated.push(entry.index);
-            while(metadata.updated.length > 5) {
-                metadata.updated.shift()
-            }
-        }
-
-        metadata.entries[entry.index].updated = Date.now();
-        writeMetadataFile(metadata);
     },
 }
 
 /**
-     * @returns {Promise<MetadataFile>}
-    */
-async function readMetadataFile() {
-    const metadataFile = entriesDir("_metadata.json");
-    const content = await fs.readFile(metadataFile, { encoding: "utf-8" });
-    return JSON.parse(content);
+ * Read the metadata file that has metadata for the given entry index
+ * @param {number} entryIndex
+ */
+async function readMetadataFileByEntryIndex(entryIndex) {
+    const partitionIndex = Math.floor(entryIndex / 100);
+    return readMetadataFileByPartition(partitionIndex)
 }
 
 /**
- * Write the metdata file to disk
- * @param {MetadataFile} file
+ * Read the most recent metadata file
  */
-async function writeMetadataFile(file) {
-    const metadataFile = entriesDir("_metadata.json");
-    return fs.writeFile(metadataFile, JSON.stringify(file), {encoding: "utf-8"});
+async function readLastMetadataFile() {
+    const files = await fs.readdir(entriesDir());
+    const metadataFiles = files.filter(f => f.endsWith("metadata.json"))
+    const partitionIndex = metadataFiles.length > 0 ? metadataFiles.length-1 : 0;
+    return readMetadataFileByPartition(partitionIndex)
+}
+
+/**
+ * Read the metadata file that represents the parameter partition
+ * @param {number} partition
+ * @returns {Promise<{partition: number, metadata: MetadataFile}>}
+ */
+async function readMetadataFileByPartition(partition) {
+    const metadataFile = entriesDir(`${partition}_metadata.json`);
+    const content = await fs.readFile(metadataFile, { encoding: "utf-8" });
+    const metadata = JSON.parse(content);
+    return {partition, metadata}
+}
+
+/**
+ * Write the metadata file to disk
+ * @param {number} partition The metadata partition to write to
+ * @param {MetadataFile} metadata What to write to the metadata file
+ */
+async function writeMetadataFile(partition, metadata) {
+    const metadataFile = entriesDir(`_${partition}-metadata.json`);
+    return fs.writeFile(metadataFile, JSON.stringify(metadata, null, 2), {encoding: "utf-8"});
 }
 
 /**
@@ -115,7 +108,7 @@ async function writeMetadataFile(file) {
  * or to an item within the entries directory. This function
  * does not validate that the item in question exists or not,
  * it merely calculates the path.
- * @param {string?} item
+ * @param {string} [item]
  * @returns {string}
 */
 function entriesDir(item) {
