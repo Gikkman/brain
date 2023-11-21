@@ -22,6 +22,9 @@ createFileIfNotExist(metadataFile, {entries: {}, nextIndex: 1})
 const tagMapFile = path.join(entriesMetadataDir, "tag-map.json");
 createFileIfNotExist(tagMapFile, {})
 
+const nextIndexFile = path.join(entriesMetadataDir, "next-index.txt");
+createFileIfNotExist(nextIndexFile, "1");
+
 const rcFiles = fs.readdirSync( os.homedir() )
     .filter(e => [".zshrc", ".bashrc", ".bash_profile"].includes(e))
     .map(e => {

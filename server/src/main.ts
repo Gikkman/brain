@@ -1,30 +1,27 @@
 import {join} from "path";
 
 import Fastify, { FastifyRequest } from 'fastify';
-import { getEntry, readEntry } from "./entries.js";
+import { readEntryByIndex } from "../../common/entries";
 
 const fastify = Fastify({
     logger: true
 });
 
-
-type PostApi = FastifyRequest<{Querystring: { q: string }}>;
-fastify.post("/api", (request: PostApi) => {
-    const {q} = request.query;
-    if(q) console.log("Hello " + q);
-    else console.log("Hello")
-    return "OK";
-})
+type SearchEntry = FastifyRequest<{Params: { query: string }}>;
+fastify.get("/entry", async (request: SearchEntry, response) => {
+    const entries = [await readEntryByIndex(1), await readEntryByIndex(2), await readEntryByIndex(3), await readEntryByIndex(4)]
+    const out = entries.flatMap(e => e ? [e] : []).map(e => ({title: e.title, index: e.index}))
+    return out;
+});
 
 type GetEntry = FastifyRequest<{Params: { index: number }}>;
-fastify.get("/entry/:id", async (request: GetEntry, response) => {
+fastify.get("/entry/:index", async (request: GetEntry, response) => {
     const index = request.params.index;
-    const entry = await getEntry(index);
+    const entry = await readEntryByIndex(index);
     if(!entry) {
         return response.status(404).send(`No entry found for index ${index}`);
     }
-    const content = await readEntry(entry);
-    return content;
+    return entry;
 });
 
 const staticPath = join(process.cwd(), "..", "web", "dist");

@@ -6,7 +6,9 @@ export default defineConfig({
   plugins: [svelte()],
   server: {
     proxy: {
-      "/api": "http://localhost:8080"
+      "/api": "http://localhost:8080",
+      "/entry": "http://localhost:8080",
+      "/search": "http://localhost:8080",
     }
   }
 })

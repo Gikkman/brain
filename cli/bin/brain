@@ -3,7 +3,7 @@
 const { program } = require('commander');
 const { editor } = require('@inquirer/prompts');
 
-const util = require("../util");
+const entries = require("../../common/entries");
 
 program
   .command("add")
@@ -12,11 +12,11 @@ program
   .option("-t, --tags [tags]", "adds extra tags to the new entry (csv)")
   .action(async (title, options) => {
     const tags = options.tags?.split(",") ?? [];
-    const body = await editor({
-      message: `Body for entry: ${title}`,
+    const content = await editor({
+      message: `Content for entry: ${title}`,
       postfix: ".md",
     });
-    util.addEntry({title, body, tags})
+    entries.addEntry({title, content, tags})
   })
   .addHelpText('after', `
 Example usage:
@@ -28,7 +28,7 @@ program
   .description("edit an existing entry in your brain")
   .argument("<index>", "index of the entry to edit")
   .action(async (index) => {
-    const entry = await util.readEntryByIndex(index);
+    const entry = await entries.readEntryByIndex(index);
     if(!entry) {
       console.error(`No entry found for index ${index}`)
       return;
@@ -39,7 +39,7 @@ program
       postfix: ".md",
     });
     if(newContent !== entry.content) {
-      util.updateEntryContent(entry, newContent)
+      entries.updateEntryContent(entry, newContent)
       console.log(`Updated entry ${index} with new content`);
     }
     else {

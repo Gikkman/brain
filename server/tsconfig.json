@@ -3,7 +3,7 @@
   "compilerOptions": {
     "strict": true,
 
-    "module": "ESNext",
+    "module": "CommonJS",
     "target": "ESNext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -11,7 +11,7 @@
     "skipLibCheck": true,
     "incremental": true,
     "forceConsistentCasingInFileNames": true,
-
+    "allowJs": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -23,6 +23,5 @@
   ],
   "exclude": ["node_modules"],
   "ts-node": {
-    "esm": true
   }
 }
