@@ -6,5 +6,14 @@
     export let post: Entry | undefined;
 </script>
 
-<SearchBar bind:post />
-<Post bind:post />
+<style scoped>
+.main {
+    width: 100%;
+    height: 100%;
+}
+</style>
+
+<div class="main">
+    <SearchBar bind:post />
+    <Post bind:post />
+</div>

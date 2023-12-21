@@ -3,8 +3,16 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as url from 'url';
 import * as path from 'path';
+import { execSync } from 'child_process';
+
+if(!execSync("command -v git &> /dev/null")) {
+    throw "This utility requires that 'git' is installed and available on your PATH"
+}
 
 console.log("Running cli-install script")
+
+execSync("npm i --prefix cli");
+execSync("npm i --prefix util");
 
 // Figure out where this file resides
 const brainDir = path.dirname(url.fileURLToPath(import.meta.url));
