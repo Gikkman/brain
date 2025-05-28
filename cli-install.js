@@ -12,7 +12,7 @@ if(!execSync("command -v git &> /dev/null")) {
 console.log("Running cli-install script")
 
 execSync("npm i --prefix cli");
-execSync("npm i --prefix util");
+execSync("npm i --prefix common");
 
 // Figure out where this file resides
 const brainDir = path.dirname(url.fileURLToPath(import.meta.url));

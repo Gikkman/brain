@@ -95,6 +95,7 @@ title: ${entry.title}
 created: ${Date.now()}
 updated:
 tags: ${entry.tags.join(",")}
+slug: ${encodeURIComponent(entry.title)}
 ---
 ${entry.content}
 `;
@@ -137,7 +138,8 @@ function buildFullEntry(entry, rawContent) {
     const updated = extractNumberProperty(properties, 'updated')
     const title = extractStringProperty(properties, 'title') ?? '';
     const tags = extractStringProperty(properties, 'tags')?.split(",") ?? [];
-    return {...entry, title, tags, created, updated, content}
+    const slug = extractStringProperty(properties, 'slug') ?? '';
+    return {...entry, title, tags, created, updated, content, slug}
 }
 
 /**

@@ -3,6 +3,7 @@ created: 1700148595957
 updated:
 title: HELLO
 tags: a,b,c
+slug: HELLO
 ---
 # Hello World!
 

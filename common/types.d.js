@@ -19,10 +19,10 @@ let MetadataEntry;
  * @property {string} title - Title of the entry
  * @property {string} content - Content of the entry
  * @property {string[]} tags - Tags for the entry
- */
+*/
 /**
  * @type NewEntry
- */
+*/
 let NewEntry;
 
 /**
@@ -36,6 +36,7 @@ let NewEntry;
  * @property {number} [updated] - When the entry was last updated
  * @property {string} file - File name of the entry
  * @property {string[]} tags - Tags for the entry
+ * @property {string} slug - The URL slug for the entry
  */
 /**
  * @type FullEntry
