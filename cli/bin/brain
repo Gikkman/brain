@@ -24,11 +24,20 @@ program
     const data = {title, content, tags}
     const entryAbsolutePath = entries.addEntry(data)
 
-    const worker = fork(join(__dirname, "background-worker-add.js"), {
-      detached: true,
+    const worker = fork(join(__dirname, "..", "worker", "add-git-entry.js"), {
+      detached: false,
       stdio: 'ignore',
     })
     worker.send([entryAbsolutePath, data])
+    worker.on('message', (message) => {
+      console.log(message)
+    })
+    worker.on('exit', (code) => {
+      console.log(`Child process exited with code ${code}`)
+    })
+    worker.on('error', (error) => {
+      console.log(`Child process errored with ${error}`)
+    })
   })
   .addHelpText('after', `
 Example usage:
