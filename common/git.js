@@ -14,9 +14,13 @@ module.exports = {
  * @param {number} retryCount Should not be set by the user!
  */
 async function processNewFile(newEntryAbsolutePath, data, retryCount = 0) {
+    console.log("Pulling")
     await git.pull()
+    console.log("Pull OK. Adding")
     await git.add(newEntryAbsolutePath);
+    console.log("Adding OK. Committing")
     await git.commit(`Add entry: ${data.title}`);
+    console.log("Committing OK. Pushing")
     const push = await git.push();
     if(push.pushed.length > 0) {
         console.log("Push OK", push)

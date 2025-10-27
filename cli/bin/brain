@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 // @ts-check
 const { fork } = require('child_process');
-const {join } = require('path');
+const { join } = require('path');
 
 const { program } = require('commander');
 const { editor } = require('@inquirer/prompts');
@@ -20,29 +20,34 @@ program
       message: `Content for entry: ${title}`,
       postfix: ".md",
     });
-    
-    const data = {title, content, tags}
+
+    const data = { title, content, tags }
     const entryAbsolutePath = entries.addEntry(data)
 
+    console.log(entryAbsolutePath)
     const worker = fork(join(__dirname, "..", "worker", "add-git-entry.js"), {
       detached: false,
-      stdio: 'ignore',
-    })
-    worker.send([entryAbsolutePath, data])
-    worker.on('message', (message) => {
-      console.log(message)
-    })
+      stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+    });
+
+    // Forward worker's stdout/stderr to parent's stdout/stderr
+    worker.stdout.pipe(process.stdout);
+    worker.stderr.pipe(process.stderr);
+
+    worker.send(JSON.stringify([entryAbsolutePath, data]));
+
+    // Handle worker exit
     worker.on('exit', (code) => {
-      console.log(`Child process exited with code ${code}`)
-    })
-    worker.on('error', (error) => {
-      console.log(`Child process errored with ${error}`)
-    })
+      if (code !== 0) {
+        console.error(`Worker process exited with code ${code}`);
+      }
+    });
+
   })
   .addHelpText('after', `
 Example usage:
   $ brain add -t ts,array "How to filter an array in typescript"`
-);
+  );
 
 program
   .command("edit")
@@ -54,7 +59,7 @@ program
   .addHelpText('after', `
 Example usage:
   $ brain edit 1`
-);
+  );
 
 program
   .command("search")
@@ -66,6 +71,6 @@ program
   .addHelpText('after', `
 Example usage:
   $ brain search ts array filter`
-);
+  );
 
 program.parse();
