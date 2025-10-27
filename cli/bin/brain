@@ -2,6 +2,7 @@
 // @ts-check
 const { program } = require('commander');
 const { editor } = require('@inquirer/prompts');
+const { processNewFile } = require("../../common/git");
 
 const entries = require("../../common/entries");
 
@@ -11,6 +12,7 @@ program
   .argument("<title>", "title of the new entry")
   .option("-t, --tags [tags]", "adds extra tags to the new entry (csv)")
   .action(async (title, options) => {
+    // TODO: Check if title already exists
     const tags = options.tags?.split(",") ?? [];
     const content = await editor({
       message: `Content for entry: ${title}`,
@@ -28,23 +30,7 @@ program
   .description("edit an existing entry in your brain")
   .argument("<index>", "index of the entry to edit")
   .action(async (index) => {
-    const entry = await entries.readEntryByIndex(index);
-    if(!entry) {
-      console.error(`No entry found for index ${index}`)
-      return;
-    }
-    const newContent = await editor({
-      message: `Opening editor for entry ${index} (${entry.title})`,
-      default: entry.content,
-      postfix: ".md",
-    });
-    if(newContent !== entry.content) {
-      entries.updateEntryContent(entry, newContent)
-      console.log(`Updated entry ${index} with new content`);
-    }
-    else {
-      console.log(`No content changes detected. Skipping updates to entry ${index}`)
-    }
+    console.log(index)
   })
   .addHelpText('after', `
 Example usage:

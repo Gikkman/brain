@@ -1,59 +1,36 @@
+import { NewEntry } from './types.d';
+
 // @ts-check
 const fs = require('node:fs/promises');
-const path = require("node:path");
-const { randomBytes } = require("node:crypto");
-const { execSync } = require("node:child_process");
-const { extractPrefix } = require('./entries');
 const { simpleGit } = require('simple-git');
-
 const git = simpleGit();
+
 /**
- * Processes new files, gives the file an index, and makes git commits
- * @param {string} entriesDirAbsolutePath
+ * Processes new files, and makes git commits
+ * @param {string} newEntryAbsolutePath
+ * @param {NewEntry} data
+ * @param {number} retryCount Should not be set by the user!
  */
-async function processNewFiles(entriesDirAbsolutePath, retryCount = 0) {
+export async function processNewFile(newEntryAbsolutePath, data, retryCount = 0) {
     await git.pull()
-
-    const newFiles = []
-    const allFilesInDir = await fs.readdir(entriesDirAbsolutePath);
-    const {filesToProcess, highestIndex} = sortFilesInEntriesDirectory(allFilesInDir);
-    for(let i = 0; i < filesToProcess.length; i++) {
-        const newIndex = highestIndex + i + 1;
-        const oldFileName = filesToProcess[i].file;
-        const newFileName = oldFileName.replace(filesToProcess[i].tempPrefix, newIndex+"");
-
-        const oldPath = path.join(entriesDirAbsolutePath, oldFileName);
-        const newPath = path.join(entriesDirAbsolutePath, newFileName);
-        newFiles.push(newPath);
-        await fs.copyFile(oldPath, newPath);
-        await git.add([newPath]);
-    }
-    await git.commit(`Automated update`);
+    await git.add(newEntryAbsolutePath);
+    await git.commit(`Add entry: ${data.title}`);
     const push = await git.push();
     if(push.pushed.length > 0) {
         console.log("Push OK", push)
     }
     else {
-        console.log("Push FAILED. Attempt " + retryCount, push)
-        processNewFiles(entriesDirAbsolutePath, (retryCount+1))
-    }
-}
-
-/**
- *
- * @param {string[]} files
- */
-function sortFilesInEntriesDirectory(files) {
-    const filesToProcess = [];
-    let highestIndex = 0;
-    for(const file of files) {
-        const {index, tempPrefix} = extractPrefix(file);
-        if(index && index > highestIndex) {
-            highestIndex = index;
+        console.log("Push FAILED. Resetting to origin", push)
+        const currentBranch = await git.branch(['--show-current']);
+        await git.reset(['--soft', `origin/${currentBranch}`])
+        
+        if (retryCount < 5) {
+            console.log("Retrying...")
+            return processNewFile(newEntryAbsolutePath, data, (retryCount+1))
         }
-        if(tempPrefix) {
-            filesToProcess.push({file, tempPrefix});
-        }
+       else {
+           console.error("Max retries reached")
+           // TODO: Handle this better
+       }
     }
-    return {filesToProcess, highestIndex};
 }

@@ -1,58 +1,14 @@
 // @ts-check
 const fs = require("fs/promises");
 const path = require("path");
-const { NewEntry, MetadataEntry, FullEntry, MetadataFile } = require('./types.d')
+const { NewEntry, MetadataEntry, FullEntry } = require('./types.d')
 
 module.exports = {
-    readMetadataFileByEntryIndex,
-    readLastMetadataFile,
-    readMetadataFileByPartition,
     entriesDir,
     pathExists,
     formatNewContent,
     formatUpdateContent,
     buildFullEntry,
-}
-
-/**
- * Read the metadata file that has metadata for the given entry index
- * @param {number} entryIndex
- */
-async function readMetadataFileByEntryIndex(entryIndex) {
-    const partitionIndex = Math.floor(entryIndex / 100);
-    return readMetadataFileByPartition(partitionIndex)
-}
-
-/**
- * Read the most recent metadata file
- */
-async function readLastMetadataFile() {
-    const files = await fs.readdir(entriesDir());
-    const metadataFiles = files.filter(f => f.endsWith("metadata.json"))
-    const partitionIndex = metadataFiles.length > 0 ? metadataFiles.length-1 : 0;
-    return readMetadataFileByPartition(partitionIndex)
-}
-
-/**
- * Read the metadata file that represents the parameter partition
- * @param {number} partition
- * @returns {Promise<{partition: number, metadata: MetadataFile}>}
- */
-async function readMetadataFileByPartition(partition) {
-    const metadataFile = entriesDir('metadata', `${partition}_metadata.json`);
-    const content = await fs.readFile(metadataFile, { encoding: "utf-8" });
-    const metadata = JSON.parse(content);
-    return {partition, metadata}
-}
-
-/**
- * Write the metadata file to disk
- * @param {number} partition The metadata partition to write to
- * @param {MetadataFile} metadata What to write to the metadata file
- */
-async function writeMetadataFile(partition, metadata) {
-    const metadataFile = entriesDir(`_${partition}-metadata.json`);
-    return fs.writeFile(metadataFile, JSON.stringify(metadata, null, 2), {encoding: "utf-8"});
 }
 
 /**
@@ -112,6 +68,7 @@ title: ${entry.title}
 created: ${entry.created}
 updated: ${Date.now()}
 tags: ${entry.tags.join(",")}
+slug: ${encodeURIComponent(entry.title)}
 ---
 ${content}
 `;
