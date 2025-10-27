@@ -1,8 +1,10 @@
 #! /usr/bin/env node
 // @ts-check
+const { fork } = require('child_process');
+const {join } = require('path');
+
 const { program } = require('commander');
 const { editor } = require('@inquirer/prompts');
-const { processNewFile } = require("../../common/git");
 
 const entries = require("../../common/entries");
 
@@ -18,7 +20,15 @@ program
       message: `Content for entry: ${title}`,
       postfix: ".md",
     });
-    entries.addEntry({title, content, tags})
+    
+    const data = {title, content, tags}
+    const entryAbsolutePath = entries.addEntry(data)
+
+    const worker = fork(join(__dirname, "background-worker-add.js"), {
+      detached: true,
+      stdio: 'ignore',
+    })
+    worker.send([entryAbsolutePath, data])
   })
   .addHelpText('after', `
 Example usage:

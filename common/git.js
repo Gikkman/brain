@@ -1,9 +1,11 @@
-import { NewEntry } from './types.d';
-
 // @ts-check
-const fs = require('node:fs/promises');
+const { NewEntry } = require('./types.d');
 const { simpleGit } = require('simple-git');
 const git = simpleGit();
+
+module.exports = {
+    processNewFile,
+}
 
 /**
  * Processes new files, and makes git commits
@@ -11,7 +13,7 @@ const git = simpleGit();
  * @param {NewEntry} data
  * @param {number} retryCount Should not be set by the user!
  */
-export async function processNewFile(newEntryAbsolutePath, data, retryCount = 0) {
+async function processNewFile(newEntryAbsolutePath, data, retryCount = 0) {
     await git.pull()
     await git.add(newEntryAbsolutePath);
     await git.commit(`Add entry: ${data.title}`);
