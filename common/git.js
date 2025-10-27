@@ -19,7 +19,7 @@ async function processNewFile(newEntryAbsolutePath, data, retryCount = 0) {
     console.log("Pull OK. Adding")
     await git.add(newEntryAbsolutePath);
     console.log("Adding OK. Committing")
-    await git.commit(`Add entry: ${data.title}`);
+    await git.commit(`Add entry: ${data.title}`, ['--no-verify']);
     console.log("Committing OK. Pushing")
     const push = await git.push();
     if(push.pushed.length > 0) {

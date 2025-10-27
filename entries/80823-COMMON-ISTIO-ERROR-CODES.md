@@ -3,6 +3,7 @@ title: Common Istio error codes
 created: 1711102409175
 updated:
 tags: istio
+slug: Common%20Istio%20error%20codes
 ---
 
 ## delayed connect error: 111

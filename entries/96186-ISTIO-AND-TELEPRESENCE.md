@@ -2,7 +2,8 @@
 title: Istio and Telepresence
 created: 1725023935623
 updated:
-tags: 
+tags: istio,telepresence
+slug: Istio%20and%20Telepresence
 ---
 # Istio and Telepresence
 

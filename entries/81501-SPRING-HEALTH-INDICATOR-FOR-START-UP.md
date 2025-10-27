@@ -3,6 +3,7 @@ title: Spring Health Indicator for start up
 created: 1715157601210
 updated:
 tags: spring,java
+slug: Spring%20Health%20Indicator%20for%20start%20up
 ---
 # Custom health indicator
 Create a custom health indicator that handles the startup part of health

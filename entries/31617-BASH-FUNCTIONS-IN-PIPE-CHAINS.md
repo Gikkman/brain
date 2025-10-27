@@ -2,7 +2,8 @@
 title: Bash functions in pipe chains
 created: 1733479960307
 updated:
-tags: 
+tags: bash
+slug: Bash%20functions%20in%20pipe%20chains
 ---
 You can add a bash function in-line a series of pipes like this:
 

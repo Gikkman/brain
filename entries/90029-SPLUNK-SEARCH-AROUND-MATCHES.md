@@ -3,6 +3,7 @@ title: Splunk search around matches
 created: 1709650813417
 updated:
 tags: splunk
+slug: Splunk%20search%20around%20matches
 ---
 This is an example of a splunk search that searches around matching rows:
 

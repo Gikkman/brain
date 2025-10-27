@@ -2,7 +2,8 @@
 title: Advanced Kustomize
 created: 1717580577465
 updated:
-tags:
+tags: k8s,kustomize
+slug: Advanced%20kustomize
 ---
 # Inline patch
 

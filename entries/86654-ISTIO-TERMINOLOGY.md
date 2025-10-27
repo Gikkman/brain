@@ -3,6 +3,7 @@ title: Istio terminology
 created: 1711363732842
 updated:
 tags: istio
+slug: Istio%20terminology
 ---
 **Host**: An entity capable of network communication (application on a mobile phone, server, etc.). In this documentation a host is a logical network application. A physical piece of hardware could possibly have multiple hosts running on it as long as each of them can be independently addressed.
 

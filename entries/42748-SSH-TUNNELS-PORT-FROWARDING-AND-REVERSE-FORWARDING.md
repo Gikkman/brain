@@ -3,6 +3,7 @@ title: SSH tunnels, port-frowarding and reverse-forwarding
 created: 1727094160246
 updated:
 tags: ssh
+slug: SSH%20tunnels%2C%20port-frowarding%20and%20reverse-forwarding
 ---
 # SSH Jumps, Tunnels and Forwards
 

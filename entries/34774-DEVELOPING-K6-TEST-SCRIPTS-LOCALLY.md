@@ -3,6 +3,7 @@ title: Developing k6 test scripts locally
 created: 1715761903231
 updated:
 tags: k6,k8s
+slug: Developing%20k6%20test%20scripts%20locally
 ---
 # Basics
 
