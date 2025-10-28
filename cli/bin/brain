@@ -7,7 +7,6 @@ const { program } = require('commander');
 const { editor } = require('@inquirer/prompts');
 
 const entries = require("../../common/entries");
-const { processNewFile } = require("../../common/git");
 
 program
   .command("add")
