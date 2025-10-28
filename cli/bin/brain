@@ -7,6 +7,7 @@ const { program } = require('commander');
 const { editor } = require('@inquirer/prompts');
 
 const entries = require("../../common/entries");
+const { processNewFile } = require("../../common/git");
 
 program
   .command("add")
@@ -24,25 +25,13 @@ program
     const data = { title, content, tags }
     const entryAbsolutePath = entries.addEntry(data)
 
-    console.log(entryAbsolutePath)
     const worker = fork(join(__dirname, "..", "worker", "add-git-entry.js"), {
-      detached: false,
-      stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+      detached: true,
+      stdio: ['ignore', 'ignore', 'ignore', 'ipc']
     });
-
-    // Forward worker's stdout/stderr to parent's stdout/stderr
-    worker.stdout.pipe(process.stdout);
-    worker.stderr.pipe(process.stderr);
-
+    worker.unref()
     worker.send(JSON.stringify([entryAbsolutePath, data]));
-
-    // Handle worker exit
-    worker.on('exit', (code) => {
-      if (code !== 0) {
-        console.error(`Worker process exited with code ${code}`);
-      }
-    });
-
+    process.exit(0);
   })
   .addHelpText('after', `
 Example usage:

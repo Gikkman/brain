@@ -1,6 +1,6 @@
 // @ts-check
 const { NewEntry } = require('./types.d');
-const { simpleGit } = require('simple-git');
+const { simpleGit, ResetMode } = require('simple-git');
 const git = simpleGit();
 
 module.exports = {
@@ -21,14 +21,14 @@ async function processNewFile(newEntryAbsolutePath, data, retryCount = 0) {
     console.log("Adding OK. Committing")
     await git.commit(`Add entry: ${data.title}`, ['--no-verify']);
     console.log("Committing OK. Pushing")
-    const push = await git.push();
-    if(push.pushed.length > 0) {
-        console.log("Push OK", push)
-    }
-    else {
-        console.log("Push FAILED. Resetting to origin", push)
-        const currentBranch = await git.branch(['--show-current']);
-        await git.reset(['--soft', `origin/${currentBranch}`])
+    try {
+        await git.push();
+        console.log("Push OK")
+    } catch (error) {
+        console.log("Push FAILED. Resetting", error)
+        const localBranches = await git.branchLocal();
+        console.log("Current branch", localBranches)
+        await git.reset(ResetMode.SOFT, [`origin/${localBranches.current}`])
         
         if (retryCount < 5) {
             console.log("Retrying...")
